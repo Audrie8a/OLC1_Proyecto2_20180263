@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>HTML</title>  
+  <LINK REL=StyleSheet HREF="estilo.css" TYPE="text/css" MEDIA=screen>
+</head>
+
+<body>
+  <div class="header">
+    <h1>Translator in Docker</h1>
+    <p>Audrie Annelisse del Cid Ochoa - 201801263</p>
+  </div>
+
+  <div class="Menu">
+    <button class="dropbtn">Menu</button>
+    <div class="dropdown-content">
+      <input type="file" id="archivoTexto">
+      <a href="#">Nuevo</a>
+      <a href="#">Guardar</a>
+      <a href="#">Guardar Como</a>
+    </div>
+  </div>
+
+  <div class="Menu">
+    <button class="dropbtn">Descargar</button>
+    <div class="dropdown-content">
+      <a href="#">Ambos</a>
+      <a href="#">Javascript</a>
+      <a href="#">Python</a>
+    </div>
+  </div>
+
+
+
+  <!-- Tab links -->  
+  <div class="tab" >  
+    <button class="tablinks" onclick="openPag(event, 'Pag1')" id="Abierto">Pagina 1</button>
+    <button class="tablinks" onclick="openPag(event, 'Pag2')">Pagina 2</button>
+    <button class="tablinks" onclick="openPag(event, 'Pag3')">Pagina 3</button>
+    <button class="tablinks" onclick="openPag(event, 'Pag4')">Pagina 4</button>
+  </div>
+
+  <div class="Consolas">
+    <textarea readonly id="Consola"></textarea>
+    </br>
+    <textarea readonly id="Consola"></textarea>
+  </div>
+  <!-- Tab content -->
+  <div id="Pag1" class="tabcontent">
+    <textarea id="Editor"></textarea>
+  </div>
+
+  <div id="Pag2" class="tabcontent">
+    <textarea id="Editor"></textarea>
+  </div>
+
+  <div id="Pag3" class="tabcontent">
+    <textarea id="Editor"></textarea>
+  </div> 
+
+  <div id="Pag4" class="tabcontent">
+    <textarea id="Editor"></textarea>
+  </div> 
+
+  
+    
+ 
+
+</body>
+<script src="funcionamiento.js"></script>
+</html>
