@@ -10,6 +10,8 @@ var contador = 0;
 var Token;
 var tokensArbol = [];
 
+var Traduccion = [];
+
 
 var Tipo = ['int', 'boolean', 'double', 'string', 'char'];
 var Valor = ['Cadena', 'Caracter', 'Numero', 'Decimal', 'Booleano']
@@ -22,7 +24,17 @@ function Main2(Lista) {
     //console.log("PARTE SINTÁCTIC");
     //console.log(listToString(tokensArbol, 'Token'));
     //console.log(listToString(listError,'Error'));
+    console.log("-------TRADUCCIÓN--------\n");
+    imprimir(Traduccion);
     return tokensArbol;
+}
+
+function imprimir(lista){
+    let Respuesta="";
+    lista.forEach(element => {
+        Respuesta+=element;
+    });
+    console.log(Respuesta);
 }
 
 //Listo
@@ -47,17 +59,25 @@ function INI() {
 function Principal() {
     if (actualT[3] == 'class') {
         Parea('class', 'no');
+        Traduccion.push( "class ");
+        Traduccion.push( actualT[3]);
         Parea('id', actualT[2]);
         Parea('{', 'no');
+        Traduccion.push( " : \n");
         ContenidoC();
         Parea('}', 'no');
+        Traduccion.push( "#END\n");
     }
     else if (actualT[3] == 'interface') {
         Parea('interface', 'no');
+        Traduccion.push( "class ");
+        Traduccion.push( actualT[3]);
         Parea('id', actualT[2]);
         Parea('{', 'no');
+        Traduccion.push( " : \n");
         ContenidoI();
         Parea('}', 'no');
+        Traduccion.push( "#END\n");
     } else if (actualT[2] == 'Comentario') {
         Parea('', 'Comentario');
         if (contador < Token.length - 1) {
@@ -84,6 +104,7 @@ function Mas() {
         }
     }
     else {
+        Traduccion.push( "\n");
         return;
     }
 }
@@ -93,12 +114,14 @@ function ContenidoC() {
     if (actualT[3] == 'public') {
         Parea('public', 'no');
         MF();
+        Traduccion.push( "\n");
         ContenidoC();
-    }else if(actualT[2]=='identificador' && siguienteT[3]=='('){
+    } else if (actualT[2] == 'identificador' && siguienteT[3] == '(') {
         LlamadaMF();
-        Parea(';','no');
+        Parea(';', 'no');
+        Traduccion.push( "\n");
         ContenidoC();
-    } 
+    }
     else if (actualT[2] == 'identificador' || Tipo.find(Element => actualT[3] == Element) != null) {
         variables();
         ContenidoC();
@@ -118,33 +141,47 @@ function ContenidoC() {
 function MF() {
     if (Tipo.find(Element => actualT[3] == Element) != null) {
         Parea(Tipo.find(Element => actualT[3] == Element), 'no');
+        Traduccion.push( "def ");
+        Traduccion.push( actualT[3]);
         Parea('id', actualT[2]);
         Parea('(', 'no');
+        Traduccion.push( "( ");
         Parametros();
         Parea(')', 'no');
+        Traduccion.push( " ) ");
         DAF();
     }
     else if (actualT[3] == 'void') {
         Parea('void', 'no');
+        Traduccion.push( "self ");
+        Traduccion.push( actualT[3]);
         Parea('id', actualT[2]);
         Parea('(', 'no');
+        Traduccion.push( "( ");
         Parametros();
         Parea(')', 'no');
+        Traduccion.push( ")");
         DAM();
     }
     else if (actualT[3] == 'static') {
         Parea('static', 'no');
         Parea('void', 'no');
+        Traduccion.push( "def ");
         Parea('main', 'no');
+        Traduccion.push( "main");
         Parea('(', 'no');
+        Traduccion.push( "( ");
         Parea('string', 'no');
         Parea('[', 'no');
         Parea(']', 'no');
         Parea('args', 'no');
         Parea(')', 'no');
+        Traduccion.push( ")");
         Parea('{', 'no');
+        Traduccion.push( ":\n");
         Instrucciones();
         Parea('}', 'no');
+        Traduccion.push( "#END\n");
     } else if (actualT[2] == 'Comentario') {
         Parea('', 'Comentario');
         if (contador < Token.length - 1) {
@@ -169,8 +206,9 @@ function Instrucciones() {
     } else if (actualT[2] == 'identificador' && siguienteT[3] == '(') {
         LlamadaMF();
         Parea(';', 'no');
+        Traduccion.push( "\n");
         MasInstrucciones();
-    } 
+    }
     else if (actualT[2] == 'identificador' || Tipo.find(Element => actualT[3] == Element) != null) {
         variables();
         MasInstrucciones();
@@ -238,34 +276,53 @@ function Sentencias() {
 function SentenciasR() {
     if (actualT[3] == 'for') {
         Parea('for', 'no');
+        Traduccion.push( "for ");
         Parea('(', 'no');
         DEC();
+        Traduccion.push( "in range( ");
         EXP();
         Parea(';', 'no');
+        Traduccion.push( ", ");
         EXP();
         Parea(')', 'no');
+        Traduccion.push( ")");
         Parea('{', 'no');
+        Traduccion.push( ":\n");
+        Traduccion.push( "{\n");
         Instrucciones();
         Parea('}', 'no');
+        Traduccion.push( "#END\n");
 
     } else if (actualT[3] == 'while') {
         Parea('while', 'no');
+        Traduccion.push( "while");
         Parea('(', 'no');
+        Traduccion.push( "( ");
         EXP();
         Parea(')', 'no');
+        Traduccion.push( ")");
         Parea('{', 'no');
+        Traduccion.push( ":\n");
         Instrucciones();
         Parea('}', 'no');
+        Traduccion.push( "#END \n");
     } else if (actualT[3] == 'do') {
+        Traduccion.push( "contador=0\n");
+        Traduccion.push( "while");
+        Traduccion.push( " True:\n");
         Parea('do', 'no');
         Parea('{', 'no');
         Instrucciones();
         Parea('}', 'no');
         Parea('while', 'no');
         Parea('(', 'no');
+        Traduccion.push( "if ");
         EXP();
+        Traduccion.push( ":\n");
         Parea(')', 'no');
+        Traduccion.push( "break\n");
         Parea(';', 'no');
+        Traduccion.push( "#END\n");
     } else if (actualT[2] == 'Comentario') {
         Parea('', 'Comentario');
         if (contador < Token.length - 1) {
@@ -284,20 +341,24 @@ function SentenciasR() {
 //Listo
 function SentenicasC() {
     Parea('if', 'no');
+    Traduccion.push( "if ");
     Parea('(', 'no');
     EXP();
     Parea(')', 'no');
     Parea('{', 'no');
+    Traduccion.push( ":\n");
     Instrucciones();
     Parea('}', 'no');
     Elif();
     Else();
+    Traduccion.push( "END\n");
 }
 
 //Listo
 function Else() {
     if (actualT[3] == 'else') {
         Parea('else', 'no');
+        Traduccion.push( "else:\n");
         Parea('{', 'no');
         Instrucciones();
         Parea('}', 'no');
@@ -315,6 +376,7 @@ function Else() {
 function Elif() {
     if (actualT[3] == 'else' && siguienteT[3] == 'if') {
         Parea('else', 'no');
+        Traduccion.push( "el");
         SentenicasC();
     } else if (actualT[2] == 'Comentario') {
         Parea('', 'Comentario');
@@ -329,6 +391,7 @@ function Elif() {
 //Listo
 function DEC() {
     Parea(Tipo.find(Element => actualT[3] == Element), 'no');
+    Traduccion.push( actualT[3]);
     Parea('id', actualT[2]);
     MasVariables();
 }
@@ -337,16 +400,20 @@ function DEC() {
 function SBCR() {
     if (actualT[3] == 'break') {
         Parea('break', 'no');
+        Traduccion.push( "break\n");
         Parea(';', 'no');
     } else if (actualT[3] == 'continue') {
         Parea('continue', 'no')
+        Traduccion.push( "continue\n");
         Parea(';', 'no');
     } else if (actualT[3] == 'return') {
         Parea('return', 'no');
+        Traduccion.push( "return ");
         if (actualT[3] != ';') {
             opcion();
         }
         Parea(';', 'no');
+        Traduccion.push( "\n");
     } else if (actualT[2] == 'Comentario') {
         Parea('', 'Comentario');
         if (contador < Token.length - 1) {
@@ -356,8 +423,8 @@ function SBCR() {
         ErrorSintactico = true;
         listError.push([actualT[3], 'system.out.println o system.out.print']);
         Parea('', 'system.out.println o system.out.print');
-        if(contador < Token.length - 1){
-        SBCR();
+        if (contador < Token.length - 1) {
+            SBCR();
         }
     }
 }
@@ -372,16 +439,20 @@ function Print() {
     }
     else if (actualT[3] == 'system.out.print') {
         Parea('system.out.print', 'no');
+        Traduccion.push( "print");
     } else if (actualT[3] == 'system.out.println') {
         Parea('system.out.println', 'no');
+        Traduccion.push( "println");
     } else {
         ErrorSintactico = true;
         listError.push([actualT[3], 'system.out.println o system.out.print']);
         Parea('', 'system.out.println o system.out.print');
     }
     Parea('(', 'no');
+    Traduccion.push( "(");
     EXP();
     Parea(')', 'no');
+    Traduccion.push( ");\n");
     Parea(';', 'no');
 }
 
@@ -389,11 +460,14 @@ function Print() {
 function DAF() {
     if (actualT[3] == '{') {
         Parea('{', 'no');
+        Traduccion.push( ": \n");
         Instrucciones();
         Parea('}', 'no');
+        Traduccion.push( "\n");
     }
     else if (actualT[3] == ';') {
         Parea(';', 'no');
+        Traduccion.push( "\n");
     } else if (actualT[2] == 'Comentario') {
         Parea('', 'Comentario');
         if (contador < Token.length - 1) {
@@ -445,6 +519,7 @@ function T() {
 function EP() {
     if (actualT[3] == '+' || actualT[3] == '-' || actualT[3] == '||' || actualT[3] == '>' ||
         actualT[3] == '<' || actualT[3] == '>=' || actualT[3] == '<=') {
+        Traduccion.push( actualT[3]);
         Parea('op', actualT[2]);
         T();
         EP();
@@ -462,11 +537,13 @@ function EP() {
 function TP() {
     if (actualT[3] == '*' || actualT[3] == '/' || actualT[3] == '==' || actualT[3] == '!='
         || actualT[3] == '&&' || actualT[3] == '^') {
+        Traduccion.push( actualT[3]);
         Parea('op', actualT[2]);
         F();
         TP();
     }
     if (actualT[3] == '++' || actualT[3] == '--') {
+        Traduccion.push( actualT[3]);
         Parea('op', actualT[2]);
         TP();
     }
@@ -486,16 +563,21 @@ function F() {
         if (siguienteT[3] == '(') {
             LlamadaMF();
         } else {
+            Traduccion.push( actualT[3]);
             Parea('id', actualT[3]);
         }
     } else if (Valor.find(Element => actualT[2] == Element) != null) {
+        Traduccion.push( actualT[3]);
         Parea(Valor.find(Element => actualT[2] == Element) != null, 'Valor');
     }
     else if (actualT[3] == '(') {
         Parea('(', 'no');
+        Traduccion.push( "( ");
         EXP();
         Parea(')', 'no');
+        Traduccion.push( " )");
     } else if (actualT[3] == '-' || actualT[3] == '!') {
+        Traduccion.push( actualT[3]);
         Parea('op', actualT[2]);
         EXP();
     } else if (actualT[2] == 'Comentario') {
@@ -507,7 +589,7 @@ function F() {
         ErrorSintactico = true;
         listError.push([actualT[3], 'id, valor o expresion ']);
         Parea('', 'id, valor, expresion o llamar a una función ');
-        if(contador < Token.length - 1){
+        if (contador < Token.length - 1) {
             F();
         }
     }
@@ -515,10 +597,14 @@ function F() {
 
 //Listo
 function LlamadaMF() {
+    Traduccion.push( actualT[3]);
     Parea('id', actualT[2]);
     Parea('(', 'no');
+    Traduccion.push( "( ");
     Parametros();
     Parea(')', 'no');
+    Traduccion.push( " )");
+
 }
 
 function SIMB() {
@@ -537,11 +623,14 @@ function SIMB() {
 function DAM() {
     if (actualT[3] == '{') {
         Parea('{', 'no');
+        Traduccion.push( ":\n");
         Instrucciones();
         Parea('}', 'no');
+        Traduccion.push( "#END\n");
     }
     else if (actualT[3] == ';') {
         Parea(';', 'no');
+        Traduccion.push( "\n");
     } else if (actualT[2] == 'Comentario') {
         Parea('', 'Comentario');
         if (contador < Token.length - 1) {
@@ -562,6 +651,7 @@ function DAM() {
 function Parametros() {
     if (Tipo.find(Element => actualT[3] == Element) != null) {
         Parea(Tipo.find(Element => actualT[3] == Element), 'no');
+        Traduccion.push( actualT[3]);
         Parea('id', actualT[2]);
         MasParametros();
     } else if (actualT[3] == '!' || actualT[3] == '-' || actualT[3] == '(' || actualT[2] == 'identificador' || Valor.find(Element => actualT[2] == Element) != null) {
@@ -569,6 +659,7 @@ function Parametros() {
         MasParametros();
     }
     else {
+        Traduccion.push( " ");
         return;
     }
 
@@ -578,6 +669,7 @@ function Parametros() {
 function MasParametros() {
     if (actualT[3] == ',') {
         Parea(',', 'no');
+        Traduccion.push( ",");
         Parametros();
     } else if (actualT[2] == 'Comentario') {
         Parea('', 'Comentario');
@@ -586,6 +678,7 @@ function MasParametros() {
         }
     }
     else {
+        Traduccion.push( " ");
         return;
     }
 }
@@ -594,22 +687,34 @@ function MasParametros() {
 function variables() {
     if (Tipo.find(Element => actualT[3] == Element) != null) {
         Parea(Tipo.find(Element => actualT[3] == Element), 'no');
+        Traduccion.push( "var ");
+        Traduccion.push( actualT[3]);
         Parea('id', actualT[2]);
         MasVariables();
     }
     else if (actualT[2] == 'identificador') {
+        Traduccion.push( actualT[3]);
+        let aux = actualT[3];
         Parea('id', actualT[2]);
-        if(actualT[3]=='++' || actualT[3]=='--'){
-            Parea('op',actualT[2]);
-            Parea(';','no');
+        if (actualT[3] == '++' || actualT[3] == '--') {
+            Parea('op', actualT[2]);
+            if (actualT[3] == '++') {
+                Traduccion.push( "=" + aux + "+1");
+            } else {
+                Traduccion.push( "=" + aux + "-1");
+            }
+            Parea(';', 'no');
+            Traduccion.push( ";\n");
             return;
         }
         Parea('=', 'no');
+        Traduccion.push( "= ");
         opcion();
         Parea(';', 'no');
+        Traduccion.push( "\n");
     } else if (actualT[2] == 'Comentario') {
         Parea('', 'Comentario');
-        if(contador < Token.length - 1){
+        if (contador < Token.length - 1) {
             variables();
         }
     }
@@ -627,19 +732,23 @@ function variables() {
 function MasVariables() {
     if (actualT[3] == ',') {
         Parea(',', 'no');
+        Traduccion.push( ", ");
+        Traduccion.push( actualT[3]);
         Parea('id', actualT[2]);
         MasVariables();
     }
     else if (actualT[3] == '=') {
         Parea('=', 'no');
+        Traduccion.push( "= ");
         opcion();
         opcion2();
     }
     else if (actualT[3] == ';') {
         Parea(';', 'no');
+        Traduccion.push( "\n");
     } else if (actualT[2] == 'Comentario') {
         Parea('', 'Comentario');
-        if(contador < Token.length - 1){
+        if (contador < Token.length - 1) {
             MasVariables();
         }
     }
@@ -657,15 +766,18 @@ function MasVariables() {
 function opcion2() {
     if (actualT[3] == ',') {
         Parea(',', 'no');
+        Traduccion.push( ",");
+        Traduccion.push( actualT[3]);
         Parea('id', actualT[2]);
         MasVariables();
     }
     else if (actualT[3] == ';') {
         Parea(';', 'no');
+        Traduccion.push( "\n");
     }
     else if (actualT[2] == 'Comentario') {
         Parea('', 'Comentario');
-        if(contador < Token.length - 1){
+        if (contador < Token.length - 1) {
             opcion2();
         }
     }
@@ -692,7 +804,7 @@ function ContenidoI() {
 
     else if (actualT[2] == 'Comentario') {
         Parea('', 'Comentario');
-        if(contador < Token.length - 1){
+        if (contador < Token.length - 1) {
             ContenidoI();
         }
     } else {
@@ -713,7 +825,7 @@ function MDEC() {
     }
     else if (actualT[2] == 'Comentario') {
         Parea('', 'Comentario');
-        if(contador < Token.length - 1){
+        if (contador < Token.length - 1) {
             MDEC();
         }
     }
@@ -748,7 +860,7 @@ function MDECMF() {
         MDECMF();
     } else if (actualT[2] == 'Comentario') {
         Parea('', 'Comentario');
-        if(contador < Token.length - 1){
+        if (contador < Token.length - 1) {
             MDECMF();
         }
     } else {
@@ -777,10 +889,26 @@ function Parea(token, tipoToken) {
                     siguienteT = Token[contador + 1];
                 } else if (actualT[2] == 'Comentario') {
                     tokensArbol.push(Token[contador]);
+                    let auxcont = 0;
+                    if (actualT[3][1] == '*') {
+                        while (auxcont < actualT[3].length - 1) {
+                            Traduccion.push( "'''" + actualT[3][auxcont]);
+                            auxcont++;
+                        }
+                        Traduccion.push( "'''\n");
+                        auxcont = 0;
+                    } else {
+                        while (auxcont < actualT[3].length - 1) {
+                            Traduccion.push( "#" + actualT[3][auxcont]);
+                            auxcont++;
+                        }
+                        Traduccion.push( "\n");
+                        auxcont = 0;
+                    }
                     console.log(actualT[3]);
                     contador++;
                     actualT = Token[contador];
-                    siguienteT=Token[contador+1];
+                    siguienteT = Token[contador + 1];
                     Parea(token, tipoToken);
                 }
                 else {                                          //Lo que se verá al imprimir 
@@ -798,6 +926,22 @@ function Parea(token, tipoToken) {
                     finalT = Token[contador + 2];
                 } else if (actualT[2] == 'Comentario') {
                     tokensArbol.push(Token[contador]);
+                    let auxcont = 0;
+                    if (actualT[3][1] == '*') {
+                        while (auxcont < actualT[3].length - 1) {
+                            Traduccion.push( "'''" + actualT[3][auxcont]);
+                            auxcont++;
+                        }
+                        Traduccion.push( "'''\n");
+                        auxcont = 0;
+                    } else {
+                        while (auxcont < actualT[3].length - 1) {
+                            Traduccion.push( "#" + actualT[3][auxcont]);
+                            auxcont++;
+                        }
+                        Traduccion.push( "\n");
+                        auxcont = 0;
+                    }
                     console.log(actualT[3]);
                     contador++;
                     actualT = Token[contador];
@@ -818,10 +962,26 @@ function Parea(token, tipoToken) {
                     finalT = Token[contador + 2];
                 } else if (actualT[2] == 'Comentario') {
                     tokensArbol.push(Token[contador]);
+                    let auxcont = 0;
+                    if (actualT[3][1] == '*') {
+                        while (auxcont < actualT[3].length - 1) {
+                            Traduccion.push( "'''" + actualT[3][auxcont]);
+                            auxcont++;
+                        }
+                        Traduccion.push( "'''\n");
+                        auxcont = 0;
+                    } else {
+                        while (auxcont < actualT[3].length - 1) {
+                            Traduccion.push( "#" + actualT[3][auxcont]);
+                            auxcont++;
+                        }
+                        Traduccion.push( "\n");
+                        auxcont = 0;
+                    }
                     console.log(actualT[3]);
                     contador++;
                     actualT = Token[contador];
-                    siguienteT=Token[contador+1];
+                    siguienteT = Token[contador + 1];
                     Parea(token, tipoToken);
                 }
                 else {                                          //Lo que se verá al imprimir 
@@ -831,6 +991,22 @@ function Parea(token, tipoToken) {
                 }
             } else if (tipoToken == 'Comentario') {
                 tokensArbol.push(Token[contador]);
+                let auxcont = 0;
+                if (actualT[3][1] == '*') {
+                    while (auxcont < actualT[3].length - 1) {
+                        Traduccion.push( "'''" + actualT[3][auxcont]);
+                        auxcont++;
+                    }
+                    Traduccion.push( "'''\n");
+                    auxcont = 0;
+                } else {
+                    while (auxcont < actualT[3].length - 1) {
+                        Traduccion.push( "#" + actualT[3][auxcont]);
+                        auxcont++;
+                    }
+                    Traduccion.push( "\n");
+                    auxcont = 0;
+                }
                 console.log(actualT[3]);
                 contador++;
                 actualT = Token[contador];
@@ -844,10 +1020,26 @@ function Parea(token, tipoToken) {
                     finalT = Token[contador + 2];
                 } else if (actualT[2] == 'Comentario') {
                     tokensArbol.push(Token[contador]);
+                    let auxcont = 0;
+                    if (actualT[3][1] == '*') {
+                        while (auxcont < actualT[3].length - 1) {
+                            Traduccion.push( "'''" + actualT[3][auxcont]);
+                            auxcont++;
+                        }
+                        Traduccion.push( "'''\n");
+                        auxcont = 0;
+                    } else {
+                        while (auxcont < actualT[3].length - 1) {
+                            Traduccion.push( "#" + actualT[3][auxcont]);
+                            auxcont++;
+                        }
+                        Traduccion.push( "\n");
+                        auxcont = 0;
+                    }
                     console.log(actualT[3]);
                     contador++;
                     actualT = Token[contador];
-                    siguienteT=Token[contador+1];
+                    siguienteT = Token[contador + 1];
                     Parea(token, tipoToken);
                 }
                 else {                                          //Lo que se verá al imprimir 
@@ -858,7 +1050,7 @@ function Parea(token, tipoToken) {
             }
         }
     }
-    else{return;}
+    else { return; }
 }
 
 function LimpiarLista(Lista) {
