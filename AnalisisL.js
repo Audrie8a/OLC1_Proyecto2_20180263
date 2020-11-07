@@ -1,6 +1,6 @@
 const { response, text } = require("express");
 
-var PR = ['public', 'class', 'interface', 'void', 'int', 'double', 'char', 'string', 'for', 'while', 'boolean', 'else', 'if', 'then', 'break', 'continue', 'return', 'static', 'main', 'system.out.print', 'system.out.println'];
+var PR = ['public', 'class', 'interface', 'void', 'int', 'double', 'char', 'string', 'for', 'while', 'boolean', 'else', 'if', 'then', 'break', 'continue', 'return', 'static', 'main', 'system.out.print', 'system.out.println','do'];
 var Simbolos = ['\{', '\}', '\(', '\)', '\,', '\;', '\=', '\[', '\]'];
 var OPL = ['&&', '||', '!', '^'];
 var OPR = ['<', '>', '<=', '>=', '==', '!='];
@@ -9,6 +9,8 @@ var OPA = ['+', '-', '*', '/', '++', '--'];
 var linea = 0;
 var columna = 0;
 var contador = 0;
+
+var identi="";
 
 var Errores = [];
 var Recuperacion = "";
@@ -189,6 +191,7 @@ function stateNumero(line, column, text, numero) {
 }
 
 function stateDecimal(line, column, text, decimal) {
+    const ArrT = text.split(/(?=[\s\S])/u);
     contador++;
     columna++;
     if (contador < text.length) {
@@ -213,7 +216,11 @@ function stateSimbolo(line, column, text, listaSimbolos, identificador, Bandera,
         let palabra = "";
         if (listaSimbolos[count].toLowerCase() == text[contador].toLowerCase()) {
             palabra = ComprobarSimbolos(identificador, text);
+            if(identi!=""){
+                identificador=identi;
+            }
             listaTokens.push([line, column, identificador, palabra]);
+            identi="";
             Recuperacion += palabra;
             contador++;
             columna++;
@@ -227,7 +234,7 @@ function stateSimbolo(line, column, text, listaSimbolos, identificador, Bandera,
                 case '&':
                     if (text[contAux].toLowerCase() == '&'.toLowerCase()) {
                         palabra2 += text[contAux];                        
-                        listaTokens.push([line, column, identificador, palabra2]);
+                        listaTokens.push([line, column, 'OperadorA', palabra2]);
                         Recuperacion += palabra2;
                         contador=contador+2;
                         columna++;
@@ -237,7 +244,7 @@ function stateSimbolo(line, column, text, listaSimbolos, identificador, Bandera,
                 case '|':
                     if (text[contAux].toLowerCase() == '|'.toLowerCase()) {
                         palabra2 += text[contAux];                        
-                        listaTokens.push([line, column, identificador, palabra2]);
+                        listaTokens.push([line, column, 'OperadorA', palabra2]);
                         Recuperacion += palabra2;
                         contador=contador+2;
                         columna++;
@@ -260,24 +267,28 @@ function ComprobarSimbolos(identificador, text) {
                 if (text[contAux].toLowerCase() == '='.toLowerCase()) {
                     palabra += text[contAux];
                     contador++;
+                    identi='OperadorR';
                 }
                 break;
             case '<':
                 if (text[contAux].toLowerCase() == '='.toLowerCase()) {
                     palabra += text[contAux];
                     contador++;
+                    identi='OperadorR';
                 }
                 break;
             case '=':
                 if (text[contAux].toLowerCase() == '='.toLowerCase()) {
                     palabra += text[contAux];
                     contador++;
+                    identi='OperadorR';
                 }
                 break;
             case '!':
                 if (text[contAux].toLowerCase() == '='.toLowerCase()) {
                     palabra += text[contAux];
                     contador++;
+                    identi='OperadorL';
                 }
                 break;
         }
@@ -288,12 +299,14 @@ function ComprobarSimbolos(identificador, text) {
                 if (text[contAux].toLowerCase() == '+'.toLowerCase()) {
                     palabra += text[contAux];
                     contador++;
+                    identi=="OperadorA"
                 }
                 break;
             case '-':
                 if (text[contAux].toLowerCase() == '-'.toLowerCase()) {
                     palabra += text[contAux];
                     contador++;
+                    identi=="OperadorA"
                 }
                 break;
         }
@@ -314,10 +327,9 @@ function PalabrasReservadas(lista){
                     break;
                 }
                 else if(lista[cont][3]=='true' || lista[cont][3]=='false'){
-                    lista[cont][2]='Booleano'
+                    lista[cont][2]='Booleano';
                     break;
                 }
-
             }
         }
     }
