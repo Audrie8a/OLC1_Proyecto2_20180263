@@ -51,30 +51,30 @@
 "}"					    return 'llavec';
 "("					    return 'para';
 ")"					    return 'parc';
-"="                     return 'igual';
 "["                     return 'cora';
 "]"                     return 'corc';
 ","                     return 'coma';
 
 
+"&&"				    return 'and';
+"||"				    return 'or';
+"<="				    return 'menor_igual';
+">="				    return 'mayor_igual';
+"=="				    return 'igualigual';
+"!="				    return 'diferente';
+"++"                    return 'incre';
+"--"                    return 'decre';
 "+"					    return 'mas';
 "-"					    return 'menos';
 "*"					    return 'por';
 "/"					    return 'div';
-"++"                    return 'incre';
-"--"                    return 'decre';
+"="                     return 'igual';
 
-"&&"				    return 'and';
-"||"				    return 'or';
 "^"                     return 'xor';
 "!"					    return 'not';
 
-"<="				    return 'menor_igual';
 "<"					    return 'menorque';
-">="				    return 'mayor_igual';
 ">"					    return 'mayroque';
-"=="				    return 'igualigual';
-"!="				    return 'diferente';
 
 \"[^\"]*\"	                                                    return 'cadena'; 
 "'"[^']"'"				                                        return 'caracter';
@@ -120,7 +120,7 @@ LISTCI
 ;
 
 CI
-    : tpublic CLASINTER identificador BLOQUE          {$$=`class ${$3} ${$4};`;}
+    : tpublic CLASINTER identificador BLOQUE          {$$=`class ${$3} ${$4}`;}
     | error llavec{
         listError.push(['Sintáctico',this._$.first_line,this._$.first_column,'Se encontró: '+ yytext +', se esperaba: }']);
     }
@@ -159,7 +159,7 @@ MF
     | TIPO identificador para parc  DAMF                                       {$$=`function ${$2}( ) ${$5}`;}         
     | tvoid identificador para PARAMETROS parc DAMF                            {$$=`function ${$2}(${$4}) ${$6}`;}
     | tvoid identificador para parc DAMF                                       {$$=`function ${$2}( ) ${$5}`;}
-    | tstatic tvoid tmain para string cora corc targs parc BLOQUEI             {$$=`function ${$3}() ${$10}`;}
+    | tstatic tvoid tmain para tstring cora corc targs parc BLOQUEI             {$$=`function ${$3}() ${$10}`;}
     | error llavec{
         listError.push(['Sintáctico',this._$.first_line,this._$.first_column,'Se encontró: '+ yytext +', se esperaba: }']);
     }
@@ -225,7 +225,7 @@ INSTRUCCION
     | SENTENCIASC                                                 {$$=`${$1}`;}
     | SR_FOR                                                      {$$=`${$1}`;}  
     | SR_WHILE                                                    {$$=`${$1}`;}  
-    | SR_DOWHILE                                                  {$$=`${$1}`;}  
+    | SR_DOWHILE                                                  {$$=`${$1}`;} 
     | error ptcoma{
         listError.push(['Sintáctico',this._$.first_line,this._$.first_column,'Se encontró: '+ yytext +', se esperaba: ;']);
     }
@@ -280,6 +280,8 @@ OPCIONELSE
 
 DEC 
     : TIPO LLAMADA                             {$$=`${$1} ${$2}`;}
+    | TIPO identificador                       {$$=`${$1} ${$2}`;}
+    | INCREDECRE                               {$$=`${$1}`;}
 ;
 
 SBCR
@@ -303,8 +305,7 @@ EXP
     | ttrue                                 { $$ = `true` }
 	| tfalse                                { $$ = `false` }
     | identificador                         { $$ = $1 }
-    | EXP incre                             { $$ = `${$1}${$2}`; }
-    | EXP decre                             { $$ = `${$1}${$2}`; }
+    | INCREDECRE                            { $$ = `${$1}`; }
     | EXP igualigual EXP                    { $$ = `${$1} == ${$3}`; }
     | EXP diferente EXP                     { $$ = `${$1} != ${$3}`; }
     | EXP menorque EXP                      { $$ = `${$1} < ${$3}`; }
@@ -314,7 +315,7 @@ EXP
     | EXP and EXP                           { $$ = `${$1} && ${$3}`; }
     | EXP or EXP                            { $$ = `${$1} || ${$3}`; }
     | not EXP %prec UNOT                    { $$ = `! ${$2}`; }
-    | para EXP para                         { $$ = `( ${$2} )`; }
+    | para EXP parc                         { $$ = `( ${$2} )`; }
     | identificador para DATOS parc         { $$ = `${$1}`; }
-    | parizq error parder                   {$$="";} 
+    | para error parc                   {$$="";} 
 ;
